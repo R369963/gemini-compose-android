@@ -65,15 +65,8 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatGPTUI(viewModel: GptViewModel) {
-    var arrayList: ArrayList<Part> = ArrayList()
-    arrayList.add(Part("Hello! How can I help you today?"))
-  //  viewModel.getGptList("hi")
-    val listOfResult =
-        arrayList
-    val responseData = viewModel.results
-    //viewModel.results.value[0].content.parts;
-    var messages by remember { mutableStateOf(listOfResult) }
-    var newMessage by remember { mutableStateOf(TextFieldValue()) }
+      val responseData = viewModel.results
+      var newMessage by remember { mutableStateOf(TextFieldValue()) }
 
     // Compose UI structure
     Column(
@@ -88,7 +81,7 @@ fun ChatGPTUI(viewModel: GptViewModel) {
                 .weight(1f)
                 .padding(0.dp)
                 .background(Color.Black)
-                //.verticalScroll(rememberScrollState())
+            //.verticalScroll(rememberScrollState())
         ) {
             if (responseData.value.isNotEmpty()) {
                 MessageList(responseData)
@@ -127,9 +120,9 @@ fun ChatGPTUI(viewModel: GptViewModel) {
                     trailingIcon = {
                         IconButton(
                             onClick = {
-                               if (newMessage.text.isNotEmpty()) {
+                                if (newMessage.text.isNotEmpty()) {
                                     viewModel.getGptList(newMessage.text)
-                                      newMessage = TextFieldValue("")
+                                    newMessage = TextFieldValue("")
                                 }
                             }
                         ) {

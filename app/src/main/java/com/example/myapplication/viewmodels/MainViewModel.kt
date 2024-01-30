@@ -24,11 +24,7 @@ class GptViewModel:ViewModel(){
     private val apiService = RetrofitInstance.api
     val results : MutableState<List<Part>> =
         mutableStateOf(emptyList())
-    init {
-      //  results.value =
-       // getGptList("hi")
-    }
-    fun getGptList(question:String){
+     fun getGptList(question:String){
         Log.d("::","hit 1")
         val requestBody = BardRequest(
             contents = listOf(
@@ -40,8 +36,7 @@ class GptViewModel:ViewModel(){
             )
         )
         viewModelScope.launch {
-            Log.d("::","hit 2")
-             try {
+              try {
                 val response = apiService.getGptResponse(requestBody)
                 results.value += listOf( response.candidates[0].content.parts[0])
                 Log.w("**", response.candidates[0].content.parts[0].text)
