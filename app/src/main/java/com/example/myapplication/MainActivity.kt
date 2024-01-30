@@ -1,7 +1,6 @@
 package com.example.myapplication
 
 import android.annotation.SuppressLint
-import android.media.Image
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,7 +11,6 @@ import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.content.MediaType.Companion.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,13 +36,10 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -81,6 +76,7 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun ChatGPTUI(viewModel: GptViewModel) {
+     val loadingIcon = viewModel.loadingIcon
       val responseData = viewModel.results
       var newMessage by remember { mutableStateOf(TextFieldValue()) }
       val keyboardController = LocalSoftwareKeyboardController.current
@@ -142,14 +138,18 @@ fun ChatGPTUI(viewModel: GptViewModel) {
                                 }
                             }
                         ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.baseline_send_24),
-                                contentDescription = null,
-                                modifier = Modifier.size(32.dp)
-                            )
+                           if(!loadingIcon.value)
+                           {
+                               Icon(
+                                   painter = painterResource(id = R.drawable.baseline_send_24),
+                                   contentDescription = null,
+                                   modifier = Modifier.size(32.dp)
+                               )
+                           }else{
+                               AnimatedVectorDrawable(loadingIcon.value)
+                           }
                         }
                     }
-
                 )
              }
         }
@@ -157,15 +157,17 @@ fun ChatGPTUI(viewModel: GptViewModel) {
 }
 @OptIn(ExperimentalAnimationGraphicsApi::class)
 @Composable
-fun AnimatedVectorDrawable() {
+
+fun AnimatedVectorDrawable(value: Boolean) {
     val image = AnimatedImageVector.animatedVectorResource(R.drawable.cloud_network)
-    var atEnd by remember { mutableStateOf(false) }
-   Image( painter = rememberAnimatedVectorPainter(image, atEnd),
-       contentDescription = "Timer",
-       modifier = Modifier.clickable {
-           atEnd = !atEnd
-       },
-       contentScale = ContentScale.Crop )
+   Image(
+        painter = rememberAnimatedVectorPainter(image, value),
+        contentDescription = "Timer",
+        modifier = Modifier.clickable {
+            // Handle click or remove the clickable modifier if not needed
+        },
+        contentScale = ContentScale.Crop
+    )
 }
 @Composable
 fun MessageList(messages: MutableState<List<QuestionAnswer>>) {
