@@ -1,10 +1,18 @@
 package com.example.myapplication
 
 import android.annotation.SuppressLint
+import android.media.Image
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
+import androidx.compose.animation.graphics.res.animatedVectorResource
+import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
+import androidx.compose.animation.graphics.vector.AnimatedImageVector
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.content.MediaType.Companion.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,13 +33,20 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -38,6 +54,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.myapplication.model.QuestionAnswer
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.viewmodels.GptViewModel
@@ -61,11 +78,12 @@ class MainActivity : ComponentActivity() {
 
 
 @SuppressLint("MutableCollectionMutableState")
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun ChatGPTUI(viewModel: GptViewModel) {
       val responseData = viewModel.results
       var newMessage by remember { mutableStateOf(TextFieldValue()) }
+      val keyboardController = LocalSoftwareKeyboardController.current
 
     // Compose UI structure
     Column(
@@ -119,6 +137,7 @@ fun ChatGPTUI(viewModel: GptViewModel) {
                             onClick = {
                                 if (newMessage.text.isNotEmpty()) {
                                     viewModel.getGptList(newMessage.text)
+                                    keyboardController?.hide()
                                     newMessage = TextFieldValue("")
                                 }
                             }
@@ -136,30 +155,47 @@ fun ChatGPTUI(viewModel: GptViewModel) {
         }
     }
 }
-
+@OptIn(ExperimentalAnimationGraphicsApi::class)
+@Composable
+fun AnimatedVectorDrawable() {
+    val image = AnimatedImageVector.animatedVectorResource(R.drawable.cloud_network)
+    var atEnd by remember { mutableStateOf(false) }
+   Image( painter = rememberAnimatedVectorPainter(image, atEnd),
+       contentDescription = "Timer",
+       modifier = Modifier.clickable {
+           atEnd = !atEnd
+       },
+       contentScale = ContentScale.Crop )
+}
 @Composable
 fun MessageList(messages: MutableState<List<QuestionAnswer>>) {
-  if ( messages.value.isNotEmpty())
-  {
-      LazyColumn(
-          modifier = Modifier.padding(horizontal = 10.dp,
-              vertical = 5.dp)
-      ) {
-          items(items = messages.value) {
-              listWidget(it)
-          }
-      }
-  }else{
-      Text(
-          text =  "Hello my i assist you",
-          modifier = Modifier
-              .fillMaxWidth()
-              .padding(8.dp),
-          style = MaterialTheme.typography.bodySmall.copy(color = Color.White)
-      )
-  }
+    val lazyListState = rememberLazyListState()
 
+    LaunchedEffect(messages.value.size) {
+        // Automatically scroll to the last item when a new message is added
+        lazyListState.scrollToItem(messages.value.size  )
+    }
+
+    if (messages.value.isNotEmpty()) {
+        LazyColumn(
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+            state = lazyListState
+        ) {
+            items(items = messages.value) {
+                listWidget(it)
+            }
+        }
+    } else {
+        Text(
+            text = "Hello, may I assist you",
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            style = MaterialTheme.typography.bodySmall.copy(color = Color.White)
+        )
+    }
 }
+
 @Composable
 fun listWidget(questionAnswer: QuestionAnswer) {
     Box (
@@ -172,13 +208,15 @@ fun listWidget(questionAnswer: QuestionAnswer) {
                    .fillMaxWidth()
                    .padding(8.dp),
 
-               style = MaterialTheme.typography.bodySmall.copy(color = Color.White) )
+               style = MaterialTheme.typography.bodySmall.copy(color = Color.White,
+                   fontSize = 16.sp) )
            Text(
                text =   questionAnswer.answer,
                modifier = Modifier
                    .fillMaxWidth()
                    .padding(8.dp),
-               style = MaterialTheme.typography.bodySmall.copy(color = Color.White)
+               style = MaterialTheme.typography.bodySmall.copy(color = Color.White,
+                   fontSize = 16.sp)
            )
        }
     }

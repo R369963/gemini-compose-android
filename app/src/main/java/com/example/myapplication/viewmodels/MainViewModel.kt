@@ -25,6 +25,7 @@ class GptViewModel:ViewModel(){
     private val apiService = RetrofitInstance.api
     val results : MutableState<List<QuestionAnswer>> =
         mutableStateOf(emptyList())
+    val loadingIcon:MutableState<Boolean> = mutableStateOf(false)
      fun getGptList(question:String){
         Log.d("::","hit 1")
         val requestBody = BardRequest(
@@ -37,13 +38,19 @@ class GptViewModel:ViewModel(){
             )
         )
         viewModelScope.launch {
+            loadingIcon.value = true
               try {
                 val response = apiService.getGptResponse(requestBody)
-                results.value += listOf( QuestionAnswer(
-                    question = question,
-                    answer = response.candidates[0].content.parts[0].text
-                ))
-                Log.w("**", response.candidates[0].content.parts[0].text)
+                  if(response.candidates[0].content.parts.isNotEmpty()) {
+                      results.value += listOf(
+                          QuestionAnswer(
+                              question = question,
+                              answer = response.candidates[0].content.parts[0].text
+                          )
+                      )
+                      Log.w("**", response.candidates[0].content.parts[0].text)
+                      loadingIcon.value = false
+                  }
             }catch (_:Exception){
           }
          }
