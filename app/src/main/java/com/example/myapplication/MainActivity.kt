@@ -83,9 +83,7 @@ fun ChatGPTUI(viewModel: GptViewModel) {
                 .background(Color.Black)
             //.verticalScroll(rememberScrollState())
         ) {
-            if (responseData.value.isNotEmpty()) {
-                MessageList(responseData)
-            }
+            MessageList(responseData)
 
         }
 
@@ -144,18 +142,28 @@ fun ChatGPTUI(viewModel: GptViewModel) {
 
 @Composable
 fun MessageList(messages: MutableState<List<Part>>) {
-    LazyColumn {
-        items(items = messages.value) {
-            Text(
-                text = it.text,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-
-                style = MaterialTheme.typography.bodySmall.copy(color = Color.White)
-            )
-        }
-    }
+  if ( messages.value.isNotEmpty())
+  {
+      LazyColumn {
+          items(items = messages.value) {
+              Text(
+                  text = it.text,
+                  modifier = Modifier
+                      .fillMaxWidth()
+                      .padding(8.dp),
+                  style = MaterialTheme.typography.bodySmall.copy(color = Color.White)
+              )
+          }
+      }
+  }else{
+      Text(
+          text =  "Hello my i assist you",
+          modifier = Modifier
+              .fillMaxWidth()
+              .padding(8.dp),
+          style = MaterialTheme.typography.bodySmall.copy(color = Color.White)
+      )
+  }
 
 }
 
