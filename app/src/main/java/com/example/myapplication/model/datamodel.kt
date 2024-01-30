@@ -1,5 +1,9 @@
 package com.example.myapplication.model
 
+data class QuestionAnswer(
+    val question:String,
+    val answer:String
+)
 data class Root(
     val candidates: List<Candidate>,
 )

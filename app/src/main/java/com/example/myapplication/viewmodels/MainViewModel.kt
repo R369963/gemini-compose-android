@@ -10,6 +10,7 @@ import com.example.myapplication.model.BardRequest
 import com.example.myapplication.model.Candidate
 import com.example.myapplication.model.Content
 import com.example.myapplication.model.Part
+import com.example.myapplication.model.QuestionAnswer
 import com.example.myapplication.model.Root
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
@@ -22,7 +23,7 @@ import kotlin.math.log
 
 class GptViewModel:ViewModel(){
     private val apiService = RetrofitInstance.api
-    val results : MutableState<List<Part>> =
+    val results : MutableState<List<QuestionAnswer>> =
         mutableStateOf(emptyList())
      fun getGptList(question:String){
         Log.d("::","hit 1")
@@ -38,7 +39,10 @@ class GptViewModel:ViewModel(){
         viewModelScope.launch {
               try {
                 val response = apiService.getGptResponse(requestBody)
-                results.value += listOf( response.candidates[0].content.parts[0])
+                results.value += listOf( QuestionAnswer(
+                    question = question,
+                    answer = response.candidates[0].content.parts[0].text
+                ))
                 Log.w("**", response.candidates[0].content.parts[0].text)
             }catch (_:Exception){
           }

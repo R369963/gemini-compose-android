@@ -38,8 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import com.example.myapplication.model.Part
-import com.example.myapplication.model.Root
+import com.example.myapplication.model.QuestionAnswer
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.viewmodels.GptViewModel
 
@@ -133,26 +132,21 @@ fun ChatGPTUI(viewModel: GptViewModel) {
                     }
 
                 )
-
-
-            }
+             }
         }
     }
 }
 
 @Composable
-fun MessageList(messages: MutableState<List<Part>>) {
+fun MessageList(messages: MutableState<List<QuestionAnswer>>) {
   if ( messages.value.isNotEmpty())
   {
-      LazyColumn {
+      LazyColumn(
+          modifier = Modifier.padding(horizontal = 10.dp,
+              vertical = 5.dp)
+      ) {
           items(items = messages.value) {
-              Text(
-                  text = it.text,
-                  modifier = Modifier
-                      .fillMaxWidth()
-                      .padding(8.dp),
-                  style = MaterialTheme.typography.bodySmall.copy(color = Color.White)
-              )
+              listWidget(it)
           }
       }
   }else{
@@ -165,5 +159,28 @@ fun MessageList(messages: MutableState<List<Part>>) {
       )
   }
 
+}
+@Composable
+fun listWidget(questionAnswer: QuestionAnswer) {
+    Box (
+        modifier = Modifier.fillMaxWidth()
+
+    ){
+       Column {
+           Text(text =questionAnswer.question,
+               modifier = Modifier
+                   .fillMaxWidth()
+                   .padding(8.dp),
+
+               style = MaterialTheme.typography.bodySmall.copy(color = Color.White) )
+           Text(
+               text =   questionAnswer.answer,
+               modifier = Modifier
+                   .fillMaxWidth()
+                   .padding(8.dp),
+               style = MaterialTheme.typography.bodySmall.copy(color = Color.White)
+           )
+       }
+    }
 }
 
