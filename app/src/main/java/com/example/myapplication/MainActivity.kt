@@ -11,6 +11,7 @@ import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +24,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.KeyboardArrowRight
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -38,6 +42,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -88,20 +93,17 @@ fun ChatGPTUI(viewModel: GptViewModel) {
             .fillMaxSize()
             .background(Color.White)
     ) {
-        // Chat messages
-        Box(
+         Box(
             modifier = Modifier
 
                 .weight(1f)
                 .padding(0.dp)
                 .background(Color.Black)
-            //.verticalScroll(rememberScrollState())
+
         ) {
             MessageList(responseData)
-
-        }
-
-        Box(
+         }
+         Box(
             modifier = Modifier
                 .padding(0.dp)
                 .background(Color.Black)
@@ -148,15 +150,15 @@ fun ChatGPTUI(viewModel: GptViewModel) {
                                     tint = Color(0xFF6650a4)
                                 )
                             } else {
-                                /*CircularProgressIndicator(
-                                    modifier = Modifier.size(32.dp),
-                                    color = Color(0xFF6650a4)
-                                )*/
-                                Icon(
+                                    Icon(
                                     painter = painterResource(id = R.drawable.outline_stop_circle_24),
                                     contentDescription = null,
-                                    modifier = Modifier.size(32.dp),
-                                    tint = Color(0xFF6650a4)
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                        .clickable {
+                                            loadingIcon.value = false
+                                        },
+                                    tint = Color(0xFF8B20E9)
                                 )
                             }
                         }
@@ -172,8 +174,7 @@ fun MessageList(messages: MutableState<List<QuestionAnswer>>) {
     val lazyListState = rememberLazyListState()
 
     LaunchedEffect(messages.value.size) {
-        // Automatically scroll to the last item when a new message is added
-        lazyListState.scrollToItem(messages.value.size  )
+         lazyListState.scrollToItem(messages.value.size  )
     }
 
     if (messages.value.isNotEmpty()) {
@@ -202,21 +203,34 @@ fun listWidget(questionAnswer: QuestionAnswer) {
         modifier = Modifier.fillMaxWidth()
      ){
        Column {
-           Text(text =questionAnswer.question,
-               modifier = Modifier
-                   .fillMaxWidth()
-                   .padding(8.dp),
+           Row (horizontalArrangement = Arrangement.Start,
+               verticalAlignment = Alignment.CenterVertically
+           ){
+               Icon(
+                   painter = painterResource(id =  R.drawable.baseline_question_mark_24),
+                   contentDescription = "",
+                   tint = Color(0xFF8B20E9)
+               )
+               Text(text =questionAnswer.question,
+                   modifier = Modifier
+                       .fillMaxWidth()
+                       .padding(8.dp),
 
-               style = MaterialTheme.typography.bodySmall.copy(color = Color.White,
-                   fontSize = 16.sp) )
-           Text(
-               text =   questionAnswer.answer,
-               modifier = Modifier
-                   .fillMaxWidth()
-                   .padding(8.dp),
-               style = MaterialTheme.typography.bodySmall.copy(color = Color.White,
-                   fontSize = 16.sp)
-           )
+                   style = MaterialTheme.typography.bodySmall.copy(color = Color.White,
+                       fontSize = 16.sp) )
+           }
+           SelectionContainer {
+               Text(
+                   text = questionAnswer.answer,
+                   modifier = Modifier
+                       .fillMaxWidth()
+                       .padding(8.dp),
+                   style = MaterialTheme.typography.bodySmall.copy(
+                       color = Color.White,
+                       fontSize = 14.sp
+                   )
+               )
+           }
        }
     }
 }
