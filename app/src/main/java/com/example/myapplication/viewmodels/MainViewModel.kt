@@ -1,5 +1,6 @@
 package com.example.myapplication.viewmodels
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -26,8 +27,10 @@ class GptViewModel:ViewModel(){
     val results : MutableState<List<QuestionAnswer>> =
         mutableStateOf(emptyList())
     val loadingIcon:MutableState<Boolean> = mutableStateOf(false)
+     @SuppressLint("SuspiciousIndentation")
      fun getGptList(question:String){
         Log.d("::","hit 1")
+        loadingIcon.value =true
         val requestBody = BardRequest(
             contents = listOf(
                 Content(
@@ -38,7 +41,7 @@ class GptViewModel:ViewModel(){
             )
         )
         viewModelScope.launch {
-            loadingIcon.value = true
+          //  loadingIcon.value = true
               try {
                 val response = apiService.getGptResponse(requestBody)
                   if(response.candidates[0].content.parts.isNotEmpty()) {
@@ -49,7 +52,7 @@ class GptViewModel:ViewModel(){
                           )
                       )
                       Log.w("**", response.candidates[0].content.parts[0].text)
-                      loadingIcon.value = false
+                     loadingIcon.value = false
                   }
             }catch (_:Exception){
           }

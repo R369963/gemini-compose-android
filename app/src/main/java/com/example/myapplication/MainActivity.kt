@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -133,21 +134,31 @@ fun ChatGPTUI(viewModel: GptViewModel) {
                             onClick = {
                                 if (newMessage.text.isNotEmpty()) {
                                     viewModel.getGptList(newMessage.text)
+                                    loadingIcon.value = true
                                     keyboardController?.hide()
                                     newMessage = TextFieldValue("")
                                 }
                             }
                         ) {
-                           if(!loadingIcon.value)
-                           {
-                               Icon(
-                                   painter = painterResource(id = R.drawable.baseline_send_24),
-                                   contentDescription = null,
-                                   modifier = Modifier.size(32.dp)
-                               )
-                           }else{
-                               AnimatedVectorDrawable(loadingIcon.value)
-                           }
+                            if (!loadingIcon.value) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.baseline_send_24),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(32.dp),
+                                    tint = Color(0xFF6650a4)
+                                )
+                            } else {
+                                /*CircularProgressIndicator(
+                                    modifier = Modifier.size(32.dp),
+                                    color = Color(0xFF6650a4)
+                                )*/
+                                Icon(
+                                    painter = painterResource(id = R.drawable.outline_stop_circle_24),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(32.dp),
+                                    tint = Color(0xFF6650a4)
+                                )
+                            }
                         }
                     }
                 )
@@ -155,20 +166,7 @@ fun ChatGPTUI(viewModel: GptViewModel) {
         }
     }
 }
-@OptIn(ExperimentalAnimationGraphicsApi::class)
-@Composable
 
-fun AnimatedVectorDrawable(value: Boolean) {
-    val image = AnimatedImageVector.animatedVectorResource(R.drawable.cloud_network)
-   Image(
-        painter = rememberAnimatedVectorPainter(image, value),
-        contentDescription = "Timer",
-        modifier = Modifier.clickable {
-            // Handle click or remove the clickable modifier if not needed
-        },
-        contentScale = ContentScale.Crop
-    )
-}
 @Composable
 fun MessageList(messages: MutableState<List<QuestionAnswer>>) {
     val lazyListState = rememberLazyListState()
@@ -202,8 +200,7 @@ fun MessageList(messages: MutableState<List<QuestionAnswer>>) {
 fun listWidget(questionAnswer: QuestionAnswer) {
     Box (
         modifier = Modifier.fillMaxWidth()
-
-    ){
+     ){
        Column {
            Text(text =questionAnswer.question,
                modifier = Modifier
