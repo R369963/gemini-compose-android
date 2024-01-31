@@ -1,7 +1,13 @@
 package com.example.myapplication.viewmodels
 
 import android.annotation.SuppressLint
+import android.content.ContentResolver
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.util.Base64
 import android.util.Log
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -27,6 +33,7 @@ class GptViewModel:ViewModel(){
     val results : MutableState<List<QuestionAnswer>> =
         mutableStateOf(emptyList())
     val loadingIcon:MutableState<Boolean> = mutableStateOf(false)
+
      @SuppressLint("SuspiciousIndentation")
      fun getGptList(question:String){
         Log.d("::","hit 1")
@@ -57,5 +64,17 @@ class GptViewModel:ViewModel(){
             }catch (_:Exception){
           }
          }
+    }
+      fun uriToBase64(contentResolver: ContentResolver, uri: Uri): String {
+        val inputStream = contentResolver.openInputStream(uri)
+        val byteArray = inputStream?.readBytes()
+        inputStream?.close()
+
+        return Base64.encodeToString(byteArray, Base64.DEFAULT)
+    }
+
+      fun loadBitmapFromUri(contentResolver: ContentResolver, uri: Uri): Bitmap? {
+        val inputStream = contentResolver.openInputStream(uri)
+        return BitmapFactory.decodeStream(inputStream)
     }
 }
